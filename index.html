@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.28);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 22px;
+            color: #2c5364;
+            font-size: 30px;
+        }
+
+        .wrapper {
+            border: 1px solid #d7d7d7;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .text-input {
+            display: flex;
+            border-bottom: 1px solid #d7d7d7;
+        }
+
+        textarea {
+            width: 100%;
+            height: 240px;
+            border: none;
+            outline: none;
+            resize: none;
+            padding: 16px 18px;
+            font-size: 17px;
+            background: #fff;
+        }
+
+        .from-text {
+            border-right: 1px solid #d7d7d7;
+        }
+
+        .to-text {
+            background: #f8f9fb;
+        }
+
+        .controls {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            gap: 12px;
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .row.to {
+            justify-content: flex-end;
+        }
+
+        select {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 15px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .icons {
+            display: flex;
+            gap: 14px;
+        }
+
+        i {
+            color: #6d6d6d;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.2s;
+        }
+
+        i:hover {
+            color: #2c5364;
+        }
+
+        .exchange {
+            background: #f1f4f6;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #translate-btn {
+            width: 100%;
+            margin-top: 18px;
+            border: none;
+            outline: none;
+            background: #2c5364;
+            color: #fff;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #translate-btn:hover {
+            background: #1f3b48;
+        }
+
+        @media (max-width: 700px) {
+            .text-input {
+                flex-direction: column;
+            }
+
+            .from-text {
+                border-right: none;
+                border-bottom: 1px solid #d7d7d7;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .row {
+                justify-content: space-between;
+            }
+
+            .row.to {
+                justify-content: space-between;
+            }
+
+            .exchange {
+                align-self: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Language Translator</h1>
+
+        <div class="wrapper">
+            <div class="text-input">
+                <textarea class="from-text" placeholder="Enter text to translate..."></textarea>
+                <textarea class="to-text" placeholder="Translation will appear here..." readonly></textarea>
+            </div>
+
+            <ul class="controls">
+                <li class="row from">
+                    <div class="icons">
+                        <i data-id="from" class="fas fa-volume-up"></i>
+                        <i data-id="from" class="fas fa-copy"></i>
+                    </div>
+                    <select></select>
+                </li>
+
+                <li class="exchange"><i class="fas fa-exchange-alt"></i></li>
+
+                <li class="row to">
+                    <select></select>
+                    <div class="icons">
+                        <i data-id="to" class="fas fa-copy"></i>
+                        <i data-id="to" class="fas fa-volume-up"></i>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <button id="translate-btn">Translate Text</button>
+    </div>
+
+    <script>
+        const countries = {
+            en: "English",
+            es: "Spanish",
+            fr: "French",
+            de: "German",
+            it: "Italian",
+            ja: "Japanese",
+            zh: "Chinese",
+            ar: "Arabic",
+            hi: "Hindi",
+            pt: "Portuguese",
+            ru: "Russian"
+        };
+
+        const fromText = document.querySelector(".from-text");
+        const toText = document.querySelector(".to-text");
+        const selectTag = document.querySelectorAll("select");
+        const exchangeIcon = document.querySelector(".exchange");
+        const translateBtn = document.querySelector("#translate-btn");
+        const icons = document.querySelectorAll(".row i");
+
+        selectTag.forEach((tag, id) => {
+            for (const code in countries) {
+                const selected = id === 0 ? (code === "en" ? "selected" : "") : (code === "es" ? "selected" : "");
+                tag.insertAdjacentHTML("beforeend", `<option value="${code}" ${selected}>${countries[code]}</option>`);
+            }
+        });
+
+        exchangeIcon.addEventListener("click", () => {
+            const tempText = fromText.value;
+            const tempLang = selectTag[0].value;
+
+            fromText.value = toText.value;
+            selectTag[0].value = selectTag[1].value;
+
+            toText.value = tempText;
+            selectTag[1].value = tempLang;
+        });
+
+        translateBtn.addEventListener("click", () => {
+            const text = fromText.value.trim();
+            const translateFrom = selectTag[0].value;
+            const translateTo = selectTag[1].value;
+
+            if (!text) return;
+
+            toText.placeholder = "Translating...";
+
+            const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${translateFrom}|${translateTo}`;
+
+            fetch(apiUrl)
+                .then(res => res.json())
+                .then(data => {
+                    toText.value = data.responseData.translatedText;
+                    toText.placeholder = "Translation will appear here...";
+                })
+                .catch(() => {
+                    toText.placeholder = "Translation failed. Try again.";
+                });
+        });
+
+        icons.forEach(icon => {
+            icon.addEventListener("click", ({ target }) => {
+                const isFrom = target.dataset.id === "from";
+                const text = isFrom ? fromText.value : toText.value;
+                const lang = isFrom ? selectTag[0].value : selectTag[1].value;
+
+                if (!text) return;
+
+                if (target.classList.contains("fa-copy")) {
+                    navigator.clipboard.writeText(text);
+                } else if (target.classList.contains("fa-volume-up")) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = lang;
+                    speechSynthesis.speak(utterance);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
